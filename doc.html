@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>File Lookup Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    input, textarea, button {
+      font-size: 1rem;
+      padding: 8px;
+      margin: 8px 0;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+    #results {
+      white-space: pre-wrap;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      max-width: 600px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>File Lookup Tool</h2>
+
+  <!-- File Upload -->
+  <label for="fileInput">Upload your file (txt/csv):</label>
+  <input type="file" id="fileInput" accept=".txt,.csv" />
+
+  <!-- Lookup input -->
+  <label for="lookupInput">Enter text to look up:</label>
+  <input type="text" id="lookupInput" placeholder="Paste text here to search" disabled />
+
+  <!-- Button to search -->
+  <button id="searchBtn" disabled>Search</button>
+
+  <!-- Results -->
+  <h3>Matches:</h3>
+  <div id="results">(Matches will appear here)</div>
+
+  <script>
+    let fileContent = "";
+
+    const fileInput = document.getElementById('fileInput');
+    const lookupInput = document.getElementById('lookupInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsDiv = document.getElementById('results');
+
+    fileInput.addEventListener('change', function () {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please select a file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        fileContent = e.target.result;
+        lookupInput.disabled = false;
+        searchBtn.disabled = false;
+        resultsDiv.textContent = '(File loaded. Enter text to search.)';
+      };
+      reader.onerror = function() {
+        alert('Failed to read file!');
+      };
+
+      reader.readAsText(file);
+    });
+
+    searchBtn.addEventListener('click', function () {
+      const query = lookupInput.value.trim();
+      if (!query) {
+        alert('Please enter text to search for.');
+        return;
+      }
+      if (!fileContent) {
+        alert('Please upload a file first.');
+        return;
+      }
+
+      // Split file into lines and filter those containing the query (case-insensitive)
+      const lines = fileContent.split(/\r?\n/);
+      const matches = lines.filter(line => line.toLowerCase().includes(query.toLowerCase()));
+
+      if (matches.length === 0) {
+        resultsDiv.textContent = 'No matches found.';
+      } else {
+        resultsDiv.textContent = matches.join('\n');
+      }
+    });
+  </script>
+</body>
+</html>
